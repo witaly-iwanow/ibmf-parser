@@ -11,6 +11,7 @@ struct Box
 {
     uint64_t offset = 0;
     uint64_t size = 0;
+    uint32_t headerLen = 0; // at this point it's either 8 (regular box) or 16 (large size box)
     std::string type;
 
     std::vector<Box> children;

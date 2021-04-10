@@ -70,6 +70,8 @@ static int ParseBox(StreamReader& stream, Box& box, std::string& errorMsg)
             return -1;
         }
 
+         box.headerLen = stream.CurrentOffset() - box.offset;
+
         if (box.type == "moof" || box.type == "traf")
         {
             if (ParseBoxList(stream, box.children, errorMsg, box.offset + box.size) < 0)
