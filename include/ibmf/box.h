@@ -15,7 +15,7 @@ struct Box
 
     std::vector<Box> children;
 
-    std::string ToString(const std::string& linePrefix = "", const std::string& indent = "") const
+    std::string ToString(const std::string& linePrefix = "", const std::string& indent = "  ") const
     {
         std::string result = linePrefix + (type.empty() ? "<empty>" : type) + " at " + std::to_string(offset) + ", " + std::to_string(size) + " bytes";
         for (const auto& child: children)

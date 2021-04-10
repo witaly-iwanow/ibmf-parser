@@ -3,6 +3,8 @@
 namespace IBMF
 {
 
+static int ParseBoxList(StreamReader& stream, std::vector<Box>& boxes, std::string& errorMsg, int64_t nextBoxOffset);
+
 // other option is to use ntohl() which is fairly portable, but it gets
 // messy when 64-bit integer support is needed
 static inline uint32_t streamToHostU32(const char* data)
@@ -16,10 +18,9 @@ static inline uint64_t streamToHostU64(const char* data)
     return ((uint64_t)streamToHostU32(data) << 32) | streamToHostU32(data + 4);
 }
 
+
 static int ParseBox(StreamReader& stream, Box& box, std::string& errorMsg)
 {
-    errorMsg.clear();
-
     char readBuf[8];
     if (stream.BytesAvailable() > 0)
     {
@@ -50,6 +51,14 @@ static int ParseBox(StreamReader& stream, Box& box, std::string& errorMsg)
             errorMsg = "Invalid box size";
             return -1;
         }
+
+        if (box.type == "moof" || box.type == "traf")
+        {
+            if (ParseBoxList(stream, box.children, errorMsg, box.offset + box.size) < 0)
+                return -1;
+        }
+
+        stream.SeekTo(box.offset + box.size);
     }
     else
     {
@@ -61,7 +70,7 @@ static int ParseBox(StreamReader& stream, Box& box, std::string& errorMsg)
     return 0;
 }
 
-int ParseFile(StreamReader& stream, std::vector<Box>& boxes, std::string& errorMsg)
+static int ParseBoxList(StreamReader& stream, std::vector<Box>& boxes, std::string& errorMsg, int64_t nextBoxOffset)
 {
     int result = 0;
     while (stream.BytesAvailable() > 0)
@@ -76,11 +85,24 @@ int ParseFile(StreamReader& stream, std::vector<Box>& boxes, std::string& errorM
             break;
         }
 
-        stream.SeekTo(box.offset + box.size);
+        const auto currOffset = stream.CurrentOffset();
+        if (currOffset == nextBoxOffset)
+            break;
+        else if (currOffset > nextBoxOffset)
+        {
+            errorMsg = "Parsing failure, box boundary overrun";
+            return -1;
+        }
     }
 
     return result;
 }
+
+int ParseFile(StreamReader& stream, std::vector<Box>& boxes, std::string& errorMsg)
+{
+    return ParseBoxList(stream, boxes, errorMsg, stream.BytesAvailable());
+}
+
 
 #if defined(ENABLE_TESTS)
 int streamToHostUnitTests()
