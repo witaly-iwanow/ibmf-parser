@@ -42,6 +42,8 @@ static int ParseBox(StreamReader& stream, Box& box, std::string& errorMsg)
             }
             box.size = streamToHostU64(readBuf);
         }
+        else if (box.size == 0)
+            box.size = stream.BytesAvailable() + 8; // till the end of the file
 
         if (box.size < (stream.CurrentOffset() - box.offset))
         {
