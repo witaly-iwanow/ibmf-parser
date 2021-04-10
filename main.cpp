@@ -1,6 +1,8 @@
 #include <iostream>
 
-#include "iso-file-reader.h"
+#include "ibmf/parser.h"
+
+#include "file-stream-reader.h"
 
 int main(int argc, char* argv[])
 {
@@ -10,9 +12,23 @@ int main(int argc, char* argv[])
         return -1;
     }
 
-    IsoFileReader ifr(argv[1]);
-    if (ifr.GetFileSize() > 0)
-        std::cout << "Successfully opened " << argv[1] << ", " << ifr.GetFileSize() << " bytes" << std::endl;
+    FileStreamReader streamer(argv[1]);
+    if (streamer.BytesAvailable() < 0)
+        return -1;
+
+    std::cout << "Successfully opened " << argv[1] << ", " << streamer.BytesAvailable() << " bytes" << std::endl;
+
+    std::vector<IBMF::Box> boxes;
+    std::string errorMsg;
+    if (IBMF::ParseFile(streamer, boxes, errorMsg) < 0)
+    {
+        std::cerr << "Parsing failed, error message: " << errorMsg << "\n";
+        return -1;
+    }
+
+    std::cout << "File structure:\n";
+    for (const auto& box: boxes)
+        std::cout << box.ToString() << std::endl;
 
     return 0;
 }

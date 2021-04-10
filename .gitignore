@@ -11,3 +11,6 @@ CTestTestfile.cmake
 _deps
 
 ibmf-parser
+.DS_Store
+_xcode
+_build
