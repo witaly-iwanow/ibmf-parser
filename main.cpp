@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
 
     std::cout << "File structure:\n";
     for (const auto& box: boxes)
-        std::cout << box.ToString() << std::endl;
+        std::cout << box.ToString("", "..") << std::endl;
 
     return 0;
 }

@@ -18,6 +18,18 @@ static inline uint64_t streamToHostU64(const char* data)
     return ((uint64_t)streamToHostU32(data) << 32) | streamToHostU32(data + 4);
 }
 
+static inline bool ValidType(const char* typeBuf)
+{
+    // looks like box/atom type can only contain printable characters (https://mp4ra.org/#/atoms)
+    for (int i = 0; i < 4; ++i)
+    {
+        // std::isprint() would work too, but it depends on the current locale
+        if (typeBuf[i] < 0x20 || typeBuf[i] > 0x7e)
+            return false;
+    }
+    return true;
+}
+
 
 static int ParseBox(StreamReader& stream, Box& box, std::string& errorMsg)
 {
@@ -29,6 +41,12 @@ static int ParseBox(StreamReader& stream, Box& box, std::string& errorMsg)
         if (stream.Read(readBuf, 8) != 8)
         {
             errorMsg = "Failed to read box header";
+            return -1;
+        }
+
+        if (!ValidType(readBuf + 4))
+        {
+            errorMsg = "Invalid box type";
             return -1;
         }
 
@@ -58,7 +76,11 @@ static int ParseBox(StreamReader& stream, Box& box, std::string& errorMsg)
                 return -1;
         }
 
-        stream.SeekTo(box.offset + box.size);
+        if (!stream.SeekTo(box.offset + box.size))
+        {
+            errorMsg = "Parsing failure, invalid box size indicated / file truncated";
+            return -1;
+        }
     }
     else
     {
