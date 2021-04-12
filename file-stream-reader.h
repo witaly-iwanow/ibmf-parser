@@ -21,7 +21,7 @@ public:
             _bufSize = file.tellg();
             if (_bufSize > 0)
             {
-                _buf = std::unique_ptr<char[]>{ new char[_bufSize] };
+                _buf = std::unique_ptr<char[]>{ new(std::nothrow) char[_bufSize] };
                 if (_buf)
                 {
                     file.seekg(0);
