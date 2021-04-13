@@ -4,6 +4,7 @@
 #include <sstream>
 #include <iomanip>
 #include <algorithm>
+#include <cctype>
 
 #include "third-party/pugixml/pugixml.hpp"
 

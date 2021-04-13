@@ -12,9 +12,8 @@ int Base64ToFile(const char* data, const std::string& dstFileName)
     if (!data)
         return -1;
 
-    std::ofstream dstStream;
-    dstStream.open(dstFileName.c_str(), std::ios_base::trunc | std::ios::binary);
-    if (dstStream.good() && dstStream.is_open())
+    std::ofstream dstStream(dstFileName.c_str(), std::ios_base::trunc | std::ios::binary);
+    if (dstStream)
     {
         static const std::string Base64Symbols("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/");
         unsigned char DecodeTable[256];
@@ -23,7 +22,7 @@ int Base64ToFile(const char* data, const std::string& dstFileName)
             DecodeTable[Base64Symbols[i]] = static_cast<unsigned char>(i);
         DecodeTable[0] = DecodeTable['='] = 0;
 
-        constexpr int writeBufSize = 1024 * 1024;
+        constexpr int writeBufSize = 32 * 1024;
         std::array<unsigned char, writeBufSize> writeBuf;
         int writeBufOffset = 0;
         int totalBytesWritten = 0;

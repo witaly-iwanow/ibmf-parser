@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstring>
+#include <string>
 
 #include "file-stream-reader.h"
 
@@ -122,5 +123,5 @@ int FileStreamReader::ReadFromBuffer(char* buf, int64_t bufSize)
     if (_readFileOffset >= (_bufFileOffset + _bytesInBuffer))
         InvalidateReadBuffer();
 
-    return bytesAvail;
+    return static_cast<int>(bytesAvail);
 }
