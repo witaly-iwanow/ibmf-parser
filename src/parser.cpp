@@ -129,7 +129,7 @@ int ParseFile(StreamReader& stream, std::vector<Box>& boxes, std::string& errorM
 
 
 #if defined(ENABLE_TESTS)
-int streamToHostUnitTests()
+int StreamToHostUnitTests()
 {
     char t[8] = { static_cast<char>(0xF1), static_cast<char>(0xF2), static_cast<char>(0xF3), static_cast<char>(0xF4),
         0x10, 0x20, 0x30, 0x40 };

@@ -13,6 +13,8 @@
 #include "base64-to-file.h"
 
 
+static int imageCount = 0;
+
 struct ImageWalker:
     pugi::xml_tree_walker
 {
@@ -43,8 +45,6 @@ struct ImageWalker:
 
         return true; // continue traversal
     }
-
-    int imageCount = 0;
 };
 
 void SaveMdatImages(IBMF::StreamReader& stream, int64_t mdatSize)
@@ -122,35 +122,55 @@ void ParseMdat(IBMF::StreamReader& stream, const IBMF::Box& box)
     }
 }
 
+
 int main(int argc, char* argv[])
 {
-    if (argc != 2)
+    if (argc < 2)
     {
-        std::cerr << "Usage: " << argv[0] << " input\n  input is expected to be ISO/IEC base media file (.mp4/.mov/.3gp)\n";
+        std::cerr << "Usage: " << argv[0] << " input <input2> <input3> .. \n  input files are expected to be ISO/IEC base media (.mp4/.mov/.3gp)\n";
         return -1;
     }
 
-    FileStreamReader stream(argv[1]);
-    if (stream.BytesAvailable() < 0)
-        return -1;
-
-    std::cout << "Successfully opened " << argv[1] << ", " << stream.BytesAvailable() << " bytes" << std::endl;
-
-    std::vector<IBMF::Box> boxes;
-    std::string errorMsg;
-    if (IBMF::ParseFile(stream, boxes, errorMsg) < 0)
+#if defined(ENABLE_TESTS)
+    if (Base64DecodeUnitTests() < 0)
     {
-        std::cerr << "Parsing failed, error message: " << errorMsg << "\n";
+        std::cerr << "Base64 decoding tests failed\n";
         return -1;
     }
 
-    std::cout << "File structure:\n";
-    for (const auto& box: boxes)
-        std::cout << box.ToString("", "..") << std::endl;
+    if (IBMF::StreamToHostUnitTests() < 0)
+    {
+        std::cerr << "Stream-to-host tests failed\n";
+        return -1;
+    }
 
-    std::setlocale(LC_CTYPE, ".UTF-8");
-    for (const auto& box: boxes)
-        ParseMdat(stream, box);
+    std::cout << "Internal tests passed\n";
+#endif
+
+    for (int i = 1; i < argc; ++i)
+    {
+        FileStreamReader stream(argv[i]);
+        if (stream.BytesAvailable() <= 0)
+            return -1;
+
+        std::cout << "Successfully opened " << argv[1] << ", " << stream.BytesAvailable() << " bytes" << std::endl;
+
+        std::vector<IBMF::Box> boxes;
+        std::string errorMsg;
+        if (IBMF::ParseFile(stream, boxes, errorMsg) < 0)
+        {
+            std::cerr << "Parsing failed, error message: " << errorMsg << "\n";
+            return -1;
+        }
+
+        std::cout << "File structure:\n";
+        for (const auto& box: boxes)
+            std::cout << box.ToString("", "..") << std::endl;
+
+        std::setlocale(LC_CTYPE, ".UTF-8");
+        for (const auto& box: boxes)
+            ParseMdat(stream, box);
+    }
 
     return 0;
 }

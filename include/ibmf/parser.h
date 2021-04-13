@@ -11,6 +11,10 @@ namespace IBMF
 
 int ParseFile(StreamReader& stream, std::vector<Box>& boxes, std::string& errorMsg);
 
+#if defined(ENABLE_TESTS)
+int StreamToHostUnitTests();
+#endif
+
 };  // namespace IBMF
 
 #endif // IBMF_PARSER_H
