@@ -3,6 +3,7 @@
 
 #include <fstream>
 #include <array>
+#include <cstring>
 
 static constexpr unsigned char IllegalSymbol = 0xff;
 
@@ -17,7 +18,7 @@ int Base64ToFile(const char* data, const std::string& dstFileName)
     {
         static const std::string Base64Symbols("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/");
         unsigned char DecodeTable[256];
-        memset(DecodeTable, IllegalSymbol, sizeof(DecodeTable));
+        std::memset(DecodeTable, IllegalSymbol, sizeof(DecodeTable));
         for (int i = 0; i < Base64Symbols.size(); ++i)
             DecodeTable[Base64Symbols[i]] = static_cast<unsigned char>(i);
         DecodeTable[0] = DecodeTable['='] = 0;
