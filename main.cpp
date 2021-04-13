@@ -125,7 +125,8 @@ void ParseMdat(IBMF::StreamReader& stream, const IBMF::Box& box)
 
 int main(int argc, char* argv[])
 {
-    if (argc < 2)
+    const std::string firstArg(argc > 1 ? argv[1] : "-h");
+    if (firstArg == "-h" || firstArg == "--help")
     {
         std::cerr << "Usage: " << argv[0] << " input <input2> <input3> .. \n  input files are expected to be ISO/IEC base media (.mp4/.mov/.3gp)\n";
         return -1;
