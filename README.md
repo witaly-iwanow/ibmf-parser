@@ -21,6 +21,6 @@ Note that option ENABLE_TESTS is available:
 Regular CMake procedure again:
 
     mkdir _cmake && cd _cmake
-    cmake .. <-DENABLE_TESTS=ON>
+    cmake .. [-DENABLE_TESTS=ON]
 
 Open ibmf-parser.sln with Visual Studio and set ibmf-parser as startup project.
